@@ -9,49 +9,31 @@ import {
 } from './js/fetchCountries';
 
 const DEBOUNCE_DELAY = 300;
-// const BASE_URL = 'https://restcountries.com/v3.1/name/';
 
 var debounce = require('lodash.debounce');
-// const inputArea = document.querySelector('#search-box');
-// const locationDataList = document.querySelector('.country-list');
-// const locationDataContainer = document.querySelector('.country-info');
 
 inputArea.addEventListener('input', debounce(onNameInput, DEBOUNCE_DELAY));
 
 function onNameInput(e) {
   e.preventDefault();
 
-  fetchCountries(inputArea.value.trim())
-    .then(res => {
-      if (res.length < 2) {
-        locationDataList.innerHTML = '';
-        locationDataContainer.innerHTML = createMarkup(res);
-      } else {
-        locationDataContainer.innerHTML = '';
-        locationDataList.innerHTML = createMarkup(res);
-      }
-    })
-    .catch(err => {});
+  if (inputArea.value.trim()) {
+    fetchCountries(inputArea.value.trim())
+      .then(res => {
+        if (res.length < 2) {
+          locationDataList.innerHTML = '';
+          locationDataContainer.innerHTML = createMarkup(res);
+        } else {
+          locationDataContainer.innerHTML = '';
+          locationDataList.innerHTML = createMarkup(res);
+        }
+      })
+      .catch(err => {});
+  } else {
+    locationDataContainer.innerHTML = '';
+    locationDataList.innerHTML = '';
+  }
 }
-
-// function fetchCountries(name) {
-//   const params = 'fields=name,capital,population,flags,languages';
-
-//   if (inputArea.value) {
-//     return fetch(`${BASE_URL}${name}?${params}`).then(res => {
-//       if (!res.ok && inputArea.value !== '') {
-//         throw new Error(
-//           Notiflix.Notify.failure('Oops, there is no country with that name')
-//         );
-//       }
-//       return res.json();
-//     });
-//   } else {
-//     locationDataContainer.innerHTML = '';
-//     locationDataList.innerHTML = '';
-//     return;
-//   }
-// }
 
 function createMarkup(array) {
   if (array.length > 10) {
@@ -62,8 +44,8 @@ function createMarkup(array) {
     return array
       .map(
         ({ name: { official }, flags: { svg } }) => `<li>
-        <img src="${svg}" alt="flag" width = 50, height = 50 />
-        <h2>${official}</h2>
+        <img src="${svg}" alt="flag" width = 40, height = 40 />
+        <p>${official}</p>
       </li>`
       )
       .join('');
@@ -78,15 +60,59 @@ function createMarkup(array) {
           population,
         }) => {
           const languagesValues = Object.values(languages).join(', ');
-          return `<h1>${official}</h1>
-          <img src="${svg}" alt="flag" width = 100, height = 100 />
+          return `<div class="container"><img src="${svg}" alt="flag" width = 40, height = 40 />
+          <h2>${official}</h2></div>
           <ul>
-            <li><p>Capital: ${capital}</p></li>
-            <li><p>Population: ${population}</p></li>
-            <li><p>Languages: ${[languagesValues]}</p></li>
+            <li><p class="item-info"><span>Capital:</span> ${capital}</p></li>
+            <li><p class="item-info"><span>Population:</span> ${population}</p></li>
+            <li><p class="item-info"><span>Languages:</span> ${[
+              languagesValues,
+            ]}</p></li>
           </ul>`;
         }
       )
       .join('');
   }
 }
+// Цей код мені потрібен для себе____________________________________________________________
+
+// function fetchCountries(name) {
+//   const params = 'fields=name,capital,population,flags,languages';
+
+//   if (inputArea.value) {
+//     return fetch(`${BASE_URL}${name}?${params}`).then(res => {
+//       if (name.length < 2) {
+//         return Promise.reject(
+//           Notiflix.Notify.failure('Please enter exactly two letters')
+//         );
+//       } else if (!res.ok && inputArea.value !== '') {
+//         throw new Error(
+//           Notiflix.Notify.failure('Oops, there is no country with that name')
+//         );
+//       }
+//       return res.json();
+//     });
+//   } else {
+//     locationDataContainer.innerHTML = '';
+//     locationDataList.innerHTML = '';
+
+//     return;
+//   }
+// }
+
+// function onNameInput(e) {
+//   e.preventDefault();
+//   console.dir(inputArea);
+
+//   fetchCountries(inputArea.value.trim())
+//     .then(res => {
+//       if (res.length < 2) {
+//         locationDataList.innerHTML = '';
+//         locationDataContainer.innerHTML = createMarkup(res);
+//       } else {
+//         locationDataContainer.innerHTML = '';
+//         locationDataList.innerHTML = createMarkup(res);
+//       }
+//     })
+//     .catch(err => {});
+// }
