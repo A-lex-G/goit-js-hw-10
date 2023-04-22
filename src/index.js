@@ -20,27 +20,39 @@ function onNameInput(e) {
   if (inputArea.value.trim()) {
     fetchCountries(inputArea.value.trim())
       .then(res => {
-        if (res.length < 2) {
+        if (inputArea.value.length < 2) {
+          return Notiflix.Notify.failure('Please enter exactly two letters');
+        } else if (res.length > 10) {
+          return Notiflix.Notify.info(
+            'Too many matches found. Please enter a more specific name.'
+          );
+        } else if (res.length < 2) {
           locationDataList.innerHTML = '';
-          locationDataContainer.innerHTML = createMarkup(res);
+          locationDataContainer.innerHTML = createMarkupCard(res);
         } else {
+          console.log(res);
           locationDataContainer.innerHTML = '';
-          locationDataList.innerHTML = createMarkup(res);
+          locationDataList.innerHTML = createMarkupList(res);
         }
       })
-      .catch(err => {});
+      .catch(err => {
+        if ((err.status = '404')) {
+          Notiflix.Notify.failure('Oops, there is no country with that name');
+          clearMarkup(err);
+        }
+      });
   } else {
-    locationDataContainer.innerHTML = '';
-    locationDataList.innerHTML = '';
+    clearMarkup(inputArea.value.trim());
   }
 }
 
-function createMarkup(array) {
-  if (array.length > 10) {
-    return Notiflix.Notify.info(
-      'Too many matches found. Please enter a more specific name.'
-    );
-  } else if (array.length > 2 && array.length <= 10) {
+function clearMarkup(searchVal) {
+  locationDataContainer.innerHTML = '';
+  locationDataList.innerHTML = '';
+}
+
+function createMarkupList(array) {
+  if (array.length > 2 && array.length <= 10) {
     return array
       .map(
         ({ name: { official }, flags: { svg } }) => `<li>
@@ -50,17 +62,21 @@ function createMarkup(array) {
       )
       .join('');
   } else {
-    return array
-      .map(
-        ({
-          name: { official },
-          flags: { svg },
-          capital,
-          languages,
-          population,
-        }) => {
-          const languagesValues = Object.values(languages).join(', ');
-          return `<div class="container"><img src="${svg}" alt="flag" width = 40, height = 40 />
+    return;
+  }
+}
+function createMarkupCard(array) {
+  return array
+    .map(
+      ({
+        name: { official },
+        flags: { svg },
+        capital,
+        languages,
+        population,
+      }) => {
+        const languagesValues = Object.values(languages).join(', ');
+        return `<div class="container"><img src="${svg}" alt="flag" width = 40, height = 40 />
           <h2>${official}</h2></div>
           <ul>
             <li><p class="item-info"><span>Capital:</span> ${capital}</p></li>
@@ -69,11 +85,11 @@ function createMarkup(array) {
               languagesValues,
             ]}</p></li>
           </ul>`;
-        }
-      )
-      .join('');
-  }
+      }
+    )
+    .join('');
 }
+
 // Цей код мені потрібен для себе____________________________________________________________
 
 // function fetchCountries(name) {
@@ -115,4 +131,40 @@ function createMarkup(array) {
 //       }
 //     })
 //     .catch(err => {});
+// }
+
+// function createMarkup(array) {
+//   if (array.length > 2 && array.length <= 10) {
+//     return array
+//       .map(
+//         ({ name: { official }, flags: { svg } }) => `<li>
+//         <img src="${svg}" alt="flag" width = 40, height = 40 />
+//         <p>${official}</p>
+//       </li>`
+//       )
+//       .join('');
+//   } else {
+//     return array
+//       .map(
+//         ({
+//           name: { official },
+//           flags: { svg },
+//           capital,
+//           languages,
+//           population,
+//         }) => {
+//           const languagesValues = Object.values(languages).join(', ');
+//           return `<div class="container"><img src="${svg}" alt="flag" width = 40, height = 40 />
+//           <h2>${official}</h2></div>
+//           <ul>
+//             <li><p class="item-info"><span>Capital:</span> ${capital}</p></li>
+//             <li><p class="item-info"><span>Population:</span> ${population}</p></li>
+//             <li><p class="item-info"><span>Languages:</span> ${[
+//               languagesValues,
+//             ]}</p></li>
+//           </ul>`;
+//         }
+//       )
+//       .join('');
+//   }
 // }
